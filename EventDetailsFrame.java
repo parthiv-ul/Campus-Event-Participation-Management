@@ -5,6 +5,10 @@ import java.awt.*;
 public class EventDetailsFrame extends JFrame {
 
     public EventDetailsFrame() {
+        this(null);
+    }
+
+    public EventDetailsFrame(String eventId) {
 
         setTitle("Event Details");
         setSize(900, 600);
@@ -134,6 +138,29 @@ panel.add(new JLabel("Event ID:"), gbc);
 
         gbc.gridx = 1;
         panel.add(scrollPane, gbc);
+
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 12;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
+
+        CampusEventStore.Event event = CampusEventStore.findEvent(eventId);
+        if (event != null) {
+            idField.setText(event.id);
+            nameField.setText(event.name);
+            typeField.setText(event.type);
+            dateField.setText(event.date);
+            timeField.setText(event.time);
+            venueField.setText(event.venue);
+            coordinatorField.setText("");
+            capacityField.setText(String.valueOf(event.capacity));
+            int registeredCount = CampusEventStore.getRegistrationCount(event.id);
+            registeredField.setText(String.valueOf(registeredCount));
+            statusField.setText(registeredCount >= event.capacity ? "Full" : "Open");
+            descriptionArea.setText(event.description);
+        }
 
         add(panel);
     }

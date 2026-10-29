@@ -7,21 +7,21 @@ public class LoginFrame extends JFrame {
     private JPasswordField passwordField;
 
     public LoginFrame() {
-
         setTitle("Campus Event Management System");
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // Main panel
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
         // Title
-        JLabel titleLabel = new JLabel("CAMPUS EVENT MANAGEMENT SYSTEM");
+        JLabel titleLabel = new JLabel(
+                "CAMPUS EVENT MANAGEMENT SYSTEM"
+        );
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
         gbc.gridx = 0;
@@ -29,7 +29,7 @@ public class LoginFrame extends JFrame {
         gbc.gridwidth = 2;
         panel.add(titleLabel, gbc);
 
-        // Username
+        // Username label
         JLabel usernameLabel = new JLabel("Username:");
 
         gbc.gridx = 0;
@@ -37,19 +37,21 @@ public class LoginFrame extends JFrame {
         gbc.gridwidth = 1;
         panel.add(usernameLabel, gbc);
 
+        // Username field
         usernameField = new JTextField(20);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
         panel.add(usernameField, gbc);
 
-        // Password
+        // Password label
         JLabel passwordLabel = new JLabel("Password:");
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(passwordLabel, gbc);
 
+        // Password field
         passwordField = new JPasswordField(20);
 
         gbc.gridx = 1;
@@ -63,6 +65,12 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 3;
         panel.add(loginButton, gbc);
 
+        // Login button action
+        loginButton.addActionListener(e -> {
+            new DashboardFrame().setVisible(true);
+            dispose();
+        });
+
         // Clear button
         JButton clearButton = new JButton("Clear");
 
@@ -70,17 +78,19 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 3;
         panel.add(clearButton, gbc);
 
-    // Clear button action
-clearButton.addActionListener(e -> {
-    usernameField.setText("");
-    passwordField.setText("");
-});
+        // Clear button action
+        clearButton.addActionListener(e -> {
+            usernameField.setText("");
+            passwordField.setText("");
+        });
 
-
+        // Add panel to window
         add(panel);
     }
 
     public static void main(String[] args) {
-        new LoginFrame().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new LoginFrame().setVisible(true);
+        });
     }
 }

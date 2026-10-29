@@ -131,7 +131,90 @@ public class EventManagementFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(descriptionScrollPane, gbc);
 
+        JButton saveButton = new JButton("Save");
+        JButton updateButton = new JButton("Update");
+        JButton deleteButton = new JButton("Delete");
+        JButton clearButton = new JButton("Clear");
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+        actionPanel.add(saveButton);
+        actionPanel.add(updateButton);
+        actionPanel.add(deleteButton);
+        actionPanel.add(clearButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
+        panel.add(actionPanel, gbc);
+
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridy = 10;
+        panel.add(dashboardButton, gbc);
+
+        saveButton.addActionListener(e -> saveEvent(idField, nameField,
+                typeComboBox, dateField, timeField, venueField, capacityField,
+                descriptionArea, false));
+        updateButton.addActionListener(e -> saveEvent(idField, nameField,
+                typeComboBox, dateField, timeField, venueField, capacityField,
+                descriptionArea, true));
+        deleteButton.addActionListener(e -> {
+            try {
+                CampusEventStore.deleteEvent(idField.getText());
+                JOptionPane.showMessageDialog(this, "Event deleted.");
+                clearFields(idField, nameField, dateField, timeField, venueField,
+                        capacityField, descriptionArea);
+            } catch (IllegalArgumentException ex) {
+                showError(ex.getMessage());
+            }
+        });
+        clearButton.addActionListener(e -> clearFields(idField, nameField, dateField,
+                timeField, venueField, capacityField, descriptionArea));
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
+
         add(panel);
+    }
+
+    private void saveEvent(JTextField idField, JTextField nameField,
+            JComboBox<String> typeComboBox, JTextField dateField,
+            JTextField timeField, JTextField venueField, JTextField capacityField,
+            JTextArea descriptionArea, boolean update) {
+        try {
+            int capacity = Integer.parseInt(capacityField.getText().trim());
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("Maximum Participants must be greater than zero.");
+            }
+            CampusEventStore.Event event = new CampusEventStore.Event(
+                    idField.getText().trim(), nameField.getText().trim(),
+                    (String) typeComboBox.getSelectedItem(), dateField.getText().trim(),
+                    timeField.getText().trim(), venueField.getText().trim(), capacity,
+                    descriptionArea.getText().trim());
+            if (update) {
+                CampusEventStore.updateEvent(event);
+            } else {
+                CampusEventStore.saveEvent(event);
+            }
+            JOptionPane.showMessageDialog(this, update ? "Event updated." : "Event saved.");
+        } catch (NumberFormatException ex) {
+            showError("Maximum Participants must be a whole number.");
+        } catch (IllegalArgumentException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
+    private void clearFields(JTextField idField, JTextField nameField,
+            JTextField dateField, JTextField timeField, JTextField venueField,
+            JTextField capacityField, JTextArea descriptionArea) {
+        idField.setText("");
+        nameField.setText("");
+        dateField.setText("");
+        timeField.setText("");
+        venueField.setText("");
+        capacityField.setText("");
+        descriptionArea.setText("");
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Event Management",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String[] args) {

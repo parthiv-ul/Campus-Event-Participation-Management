@@ -108,6 +108,13 @@ public class ResultsFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
+
         // Clear button
         clearButton.addActionListener(e -> {
             resultIdField.setText("");

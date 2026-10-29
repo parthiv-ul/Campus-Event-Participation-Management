@@ -105,7 +105,28 @@ public class RegistrationFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
-        // Clear button - visual frame functionality only
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+
+        registerButton.addActionListener(e -> {
+            try {
+                CampusEventStore.register(studentIdField.getText(),
+                        studentNameField.getText(), eventIdField.getText());
+                CampusEventStore.Event event =
+                        CampusEventStore.findEvent(eventIdField.getText());
+                eventNameField.setText(event.name);
+                eventTypeField.setText(event.type);
+                statusField.setText("Registered");
+                JOptionPane.showMessageDialog(this, "Registration completed.");
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(),
+                        "Registration", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         clearButton.addActionListener(e -> {
             studentIdField.setText("");
             studentNameField.setText("");
@@ -114,6 +135,7 @@ public class RegistrationFrame extends JFrame {
             eventTypeField.setText("");
             statusField.setText("");
         });
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
 
         add(panel);
     }

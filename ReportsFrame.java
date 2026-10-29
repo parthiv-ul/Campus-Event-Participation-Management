@@ -4,6 +4,10 @@ import java.awt.*;
 public class ReportsFrame extends JFrame {
 
     public ReportsFrame() {
+        this(null);
+    }
+
+    public ReportsFrame(String initialReportType) {
 
         setTitle("Event Reports");
         setSize(900, 600);
@@ -43,6 +47,9 @@ public class ReportsFrame extends JFrame {
 
         JComboBox<String> reportComboBox =
                 new JComboBox<>(reportTypes);
+        if (initialReportType != null) {
+            reportComboBox.setSelectedItem(initialReportType);
+        }
 
         gbc.gridx = 1;
         panel.add(reportComboBox, gbc);
@@ -106,7 +113,16 @@ public class ReportsFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
-        // Clear button
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+
+        generateButton.addActionListener(e -> generateReport(
+                (String) reportComboBox.getSelectedItem(), eventIdField,
+                eventNameField, participantsField, attendanceField, winnersField));
+
         clearButton.addActionListener(e -> {
             eventIdField.setText("");
             eventNameField.setText("");
@@ -115,8 +131,47 @@ public class ReportsFrame extends JFrame {
             winnersField.setText("");
             reportComboBox.setSelectedIndex(0);
         });
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
 
         add(panel);
+    }
+
+    private void generateReport(String reportType, JTextField eventIdField,
+            JTextField eventNameField, JTextField participantsField,
+            JTextField attendanceField, JTextField winnersField) {
+        String eventId = eventIdField.getText().trim();
+        CampusEventStore.Event event = null;
+        if (!eventId.isEmpty()) {
+            event = CampusEventStore.findEvent(eventId);
+            if (event == null) {
+                JOptionPane.showMessageDialog(this, "No event exists with this ID.",
+                        "Event Reports", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            eventNameField.setText(event.name);
+        }
+
+        int registrations = CampusEventStore.getRegistrationCount(eventId.isEmpty() ? null : eventId);
+        int participantRecords = CampusEventStore.getParticipantCount(
+                eventId.isEmpty() ? null : eventId);
+        int present = CampusEventStore.getAttendanceCount(
+                eventId.isEmpty() ? null : eventId, "Present");
+        int absent = CampusEventStore.getAttendanceCount(
+                eventId.isEmpty() ? null : eventId, "Absent");
+
+        if ("Participant Report".equals(reportType)) {
+            participantsField.setText(String.valueOf(participantRecords));
+        } else {
+            participantsField.setText(String.valueOf(registrations));
+        }
+        attendanceField.setText("Present: " + present + ", Absent: " + absent);
+        if ("Results Report".equals(reportType)) {
+            winnersField.setText("No winners have been recorded");
+        } else {
+            winnersField.setText("Not applicable");
+        }
+        JOptionPane.showMessageDialog(this, reportType + " generated.",
+                "Event Reports", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {

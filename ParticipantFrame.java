@@ -107,7 +107,32 @@ public class ParticipantFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
-        // Clear button
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+
+        saveButton.addActionListener(e -> {
+            try {
+                CampusEventStore.Event event =
+                        CampusEventStore.findEvent(eventIdField.getText());
+                if (event == null) {
+                    throw new IllegalArgumentException("Create the event before using its ID.");
+                }
+                CampusEventStore.saveParticipant(new CampusEventStore.Participant(
+                        participantIdField.getText().trim(), studentIdField.getText().trim(),
+                        studentNameField.getText().trim(), event.id, event.name,
+                        event.type, (String) statusComboBox.getSelectedItem()));
+                eventNameField.setText(event.name);
+                typeComboBox.setSelectedItem(event.type);
+                JOptionPane.showMessageDialog(this, "Participant saved.");
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(),
+                        "Participant Management", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         clearButton.addActionListener(e -> {
             participantIdField.setText("");
             studentIdField.setText("");
@@ -117,6 +142,7 @@ public class ParticipantFrame extends JFrame {
             typeComboBox.setSelectedIndex(0);
             statusComboBox.setSelectedIndex(0);
         });
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
 
         add(panel);
     }

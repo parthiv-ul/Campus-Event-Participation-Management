@@ -22,9 +22,10 @@ public class DashboardFrame extends JFrame {
         panel.add(title, BorderLayout.NORTH);
 
         // Button panel
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 20, 20));
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 2, 20, 20));
 
         JButton eventButton = new JButton("Event Management");
+        JButton eventDetailsButton = new JButton("Event Details");
         JButton registrationButton = new JButton("Registration");
         JButton participantButton = new JButton("Participants");
         JButton attendanceButton = new JButton("Attendance");
@@ -34,6 +35,7 @@ public class DashboardFrame extends JFrame {
         JButton exitButton = new JButton("Exit");
 
         buttonPanel.add(eventButton);
+        buttonPanel.add(eventDetailsButton);
         buttonPanel.add(registrationButton);
         buttonPanel.add(participantButton);
         buttonPanel.add(attendanceButton);
@@ -41,14 +43,42 @@ public class DashboardFrame extends JFrame {
         buttonPanel.add(searchButton);
         buttonPanel.add(reportButton);
         buttonPanel.add(exitButton);
-        
 
         panel.add(buttonPanel, BorderLayout.CENTER);
 
-    
-    
+        eventButton.addActionListener(e ->
+                AppNavigation.open(new EventManagementFrame(), this));
+        eventDetailsButton.addActionListener(e -> openEventDetails());
+        registrationButton.addActionListener(e ->
+                AppNavigation.open(new RegistrationFrame(), this));
+        participantButton.addActionListener(e ->
+                AppNavigation.open(new ParticipantFrame(), this));
+        attendanceButton.addActionListener(e ->
+                AppNavigation.open(new AttendanceFrame(), this));
+        resultButton.addActionListener(e ->
+                AppNavigation.open(new ResultsFrame(), this));
+        searchButton.addActionListener(e ->
+                AppNavigation.open(new SearchStatusFrame(), this));
+        reportButton.addActionListener(e ->
+                AppNavigation.open(new ReportsFrame(), this));
+        exitButton.addActionListener(e -> dispose());
 
         add(panel);
+    }
+
+    private void openEventDetails() {
+        java.util.List<String> eventIds = CampusEventStore.getEventIds();
+        if (eventIds.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Save an event before viewing its details.",
+                    "No Events", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        Object selectedId = JOptionPane.showInputDialog(this, "Select an event:",
+                "Event Details", JOptionPane.PLAIN_MESSAGE, null,
+                eventIds.toArray(), eventIds.get(0));
+        if (selectedId != null) {
+            AppNavigation.open(new EventDetailsFrame(selectedId.toString()), this);
+        }
     }
 
     public static void main(String[] args) {

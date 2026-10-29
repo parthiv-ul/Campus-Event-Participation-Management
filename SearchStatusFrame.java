@@ -110,7 +110,38 @@ public class SearchStatusFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
-        // Clear button
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+
+        searchButton.addActionListener(e -> {
+            String value = searchField.getText().trim();
+            if (value.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Enter a search value.",
+                        "Search", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            CampusEventStore.Event event = CampusEventStore.findEvent(
+                    (String) searchComboBox.getSelectedItem(), value);
+            if (event == null) {
+                eventIdField.setText("");
+                eventNameField.setText("");
+                eventTypeField.setText("");
+                statusField.setText("");
+                JOptionPane.showMessageDialog(this, "No matching event was found.",
+                        "Search", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            eventIdField.setText(event.id);
+            eventNameField.setText(event.name);
+            eventTypeField.setText(event.type);
+            statusField.setText(
+                    CampusEventStore.getRegistrationCount(event.id) >= event.capacity
+                            ? "Full" : "Open");
+        });
+
         clearButton.addActionListener(e -> {
             searchField.setText("");
             eventIdField.setText("");
@@ -119,6 +150,7 @@ public class SearchStatusFrame extends JFrame {
             statusField.setText("");
             searchComboBox.setSelectedIndex(0);
         });
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
 
         add(panel);
     }

@@ -106,7 +106,30 @@ public class AttendanceFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(clearButton, gbc);
 
-        // Clear button
+        JButton dashboardButton = new JButton("Dashboard");
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
+        panel.add(dashboardButton, gbc);
+
+        markButton.addActionListener(e -> {
+            try {
+                CampusEventStore.Event event =
+                        CampusEventStore.findEvent(eventIdField.getText());
+                if (event == null) {
+                    throw new IllegalArgumentException("Create the event before using its ID.");
+                }
+                eventNameField.setText(event.name);
+                CampusEventStore.markAttendance(studentIdField.getText(),
+                        studentNameField.getText(), event.id, event.name,
+                        (String) attendanceComboBox.getSelectedItem(), dateField.getText());
+                JOptionPane.showMessageDialog(this, "Attendance marked.");
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(),
+                        "Attendance Management", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         clearButton.addActionListener(e -> {
             attendanceIdField.setText("");
             studentIdField.setText("");
@@ -116,6 +139,7 @@ public class AttendanceFrame extends JFrame {
             dateField.setText("");
             attendanceComboBox.setSelectedIndex(0);
         });
+        dashboardButton.addActionListener(e -> AppNavigation.returnToDashboard(this));
 
         add(panel);
     }
